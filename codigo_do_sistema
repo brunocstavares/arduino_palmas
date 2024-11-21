@@ -1,0 +1,51 @@
+//Acendimento de Lâmpadas através de palmas
+//Atividade de Extensão da disciplina Programação de Microcontroladores
+//Aluno: Bruno Cesar Sampaio Tavares
+
+int sensorSom = 7; // Define o pino a ser utilizado pelo sensor de som
+int rele = 8; // Define o pino a ser utilizado pelo rele
+int contPalmas = 0; // Contador de Palmas
+unsigned long tempMaxSom = 1000; // Tempo máximo entre os pulsos
+unsigned long tempMinSom = 300; // Tempo mínimo entre os pulsos
+unsigned long compriSom = 100; // Comprimento do som esperado
+unsigned long time;
+unsigned long startTime = 0;
+
+void setup() {
+  pinMode(sensorSom, INPUT); // Inicia o pino do sensor como entrada
+  pinMode(rele, OUTPUT); // Inicia os pino do rele como saída
+  // Desliga rele (o rele é invertido - HIGH desliga -- LOW liga)
+  digitalWrite(rele, HIGH);
+}
+void loop() {
+  // Inicia a contagem de tempo
+  time = millis();
+  // Faz a verificação do tempo entre o pulso inicial e o pulso seguinte
+  unsigned long tempoAposPalma = time - startTime;
+  if (tempoAposPalma >= compriSom && digitalRead(sensorSom) == LOW) {
+    // Verifica se o pulso recebido respeita o intervalo definido
+    if (tempoAposPalma < tempMinSom || tempoAposPalma > tempMaxSom) {
+      // Caso não respeite o intervalo definido, zera a contagem e o tempo
+      contPalmas = 0;
+      startTime = millis();
+    }
+
+    else {
+      // É iniciada a contagem de pulso e o tempo
+      contPalmas ++;
+      startTime = millis();
+    }
+    // Verifica se a contagem de palma é igual a 1 e se o rele está desligado
+    if ((contPalmas >= 1) && (digitalRead(rele) == HIGH)) {
+      // se rele estiver desligado, liga e zera a contagem
+      digitalWrite(rele, LOW);
+      contPalmas = 0;
+    }
+    // Verifica se a contagem de palmas é igual a 1 e se o rele está ligado
+    if ((contPalmas >= 1) && (digitalRead(rele) == LOW)) {
+      // se rele estiver ligado, desliga e zera a contagem
+      digitalWrite(rele, HIGH);
+      contPalmas = 0;
+    }
+  }
+}
